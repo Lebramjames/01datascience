@@ -1,0 +1,209 @@
+### Assignment 1: Group 9 ###
+
+# Members:
+# Bram Griffioen
+# Stephen Burbidge
+# Khanh Nguyen
+
+#### packages
+
+
+##############################
+## Question 1
+dta_bikerentals2011 <- read.csv("C:/Users/bramg/Documents/bike_rentals.csv", header = TRUE)
+registered = dta_bikerentals2011$registered
+atemp = dta_bikerentals2011$atemp
+
+par(mfrow= c(1, 2))
+hist(registered)
+hist(atemp)
+
+relationship = function(x, y, title, x_lab, y_lab){
+  cov1 = cov(x, y)
+  message(paste("Covariance:", cov1))
+  cor1 = cor(x, y)
+  message(paste("Correlation:", cor1))
+  
+  if (cor1 > 0.5){
+    message(paste("There exists a strong possitive correlation"))
+  } else if (cor1 >=0){
+    message(paste("There exists a possitive correlation"))
+  } else {
+    message(paste("There exists a negative correlation"))
+  }
+  
+  par(mfrow = c(1,1))
+  plot(x, y, main=title, xlab = x_lab, ylab = y_lab )
+  abline(lm(y ~x), col = 'red', lw = 3)
+  
+}
+
+relationship(registered, atemp, "Scatterplot Registered vs Atemp", "Registered", "Atemp")
+
+##############################
+## Question 2
+
+ols = function(x, y, title, x_lab, y_lab){
+  reg = lm(y~x)
+  summary(reg)
+  
+  xvalues= c(-11, 40)
+  yvalues = reg$coefficients[1] + reg$coefficients[2]*xvalues
+  
+  plot(x, y, main = title, xlab = x_lab, ylab = y_lab)
+  lines(xvalues, yvalues, col=2, lw = 3)
+  
+  res = reg$residuals
+  hist(res)
+  message(paste(mean(res)))
+  
+}
+  
+ols(atemp, registered, "OLS atemp vs registered", "atemp", "registered")
+
+##############################
+## Question 4
+
+ols2polynomial = function(x, y, title, x_lab, y_lab){
+  xsquared = x^2
+  reg1 = lm(y~x+xsquared)
+  summary(reg1)
+  
+  reg = lm(y~x)
+  
+  xvalues1= c(-11, 40)
+  yvalues1 = reg1$coefficients[1] + reg1$coefficients[2]*xvalues1 + reg1$coefficients[3]*xvalues1^2
+  
+  xvalues= c(-11, 40)
+  yvalues= reg$coefficients[1] + reg$coefficients[2]*xvalues
+  
+  
+  
+  plot(x, y, main = title, xlab = x_lab, ylab = y_lab)
+  lines(xvalues1, yvalues1, col=2, lw = 3)
+  lines(xvalues, yvalues, col=3, lw = 3)
+  legend(x= 'topleft', c("2nd Polynomial", "Linear"),
+         col=c(2,3), lty=1:1, cex = 0.75,)
+  
+  
+  res = reg$residuals
+  hist(res)
+  #message(paste(mean(res)))
+  
+}
+
+ols3polynomial = function(x, y, title, x_lab, y_lab){
+  x2 = x^2
+  x3 = x^3
+  
+  reg2 = lm(y~x+x2+x3)
+  reg1 = lm(y~x+x2)
+  reg = lm(y~x)
+  
+  xvalues2= c(-11, 40)
+  yvalues2 = reg2$coefficients[1] + reg2$coefficients[2]*xvalues2 + reg2$coefficients[3]*xvalues2^2 + reg2$coefficients[4]*xvalues2^3
+  
+  
+  xvalues1= c(-11, 40)
+  yvalues1 = reg1$coefficients[1] + reg1$coefficients[2]*xvalues1 + reg1$coefficients[3]*xvalues1^2
+  
+  xvalues= c(-11, 40)
+  yvalues= reg$coefficients[1] + reg$coefficients[2]*xvalues
+  
+  
+  
+  plot(x, y, main = title, xlab = x_lab, ylab = y_lab)
+  lines(xvalues, yvalues, col=2, lw = 3)
+  lines(xvalues1, yvalues1, col=3, lw = 3)
+  lines(xvalues2, yvalues2, col=4, lw = 3)
+  legend(x= 'topleft', c("Linear", "2nd", "3rd"),
+         col=c(2,3, 4), lty=1:1, cex = 0.75,)
+  
+  
+  #res = reg$residuals
+  #hist(res)
+  #message(paste(mean(res)))
+  
+}
+
+ols3polynomial(atemp, registered, "OLS with a 3nd polynomial regressor: atemp vs registered", "atemp", "registered")
+
+##############################
+## Question 5
+
+ols3polynomialestimate = function(x, y, estimate_x, title, x_lab, y_lab){
+  x2 = x^2
+  x3 = x^3
+  
+  reg2 = lm(y~x+x2+x3)
+  
+  yvalues2 = reg2$coefficients[1] + reg2$coefficients[2]*estimate_x + reg2$coefficients[3]*estimate_x^2 + reg2$coefficients[4]*estimate_x^3
+  
+  message(paste("(3): The expected number of bikes rented by registesterd customers is: ", yvalues2))
+  
+}
+
+ols2polynomialestimate = function(x, y, estimate_x, title, x_lab, y_lab){
+  x2 = x^2
+
+  reg1 = lm(y~x+x2)
+  
+  yvalues1 = reg1$coefficients[1] + reg1$coefficients[2]*estimate_x + reg1$coefficients[3]*estimate_x^2 
+  
+  message(paste("(2): The expected number of bikes rented by registesterd customers is: ", yvalues1))
+  
+}
+
+olsestimate = function(x, y, estimate_x, title, x_lab, y_lab){
+  reg = lm(y~x)
+  
+  yvalues = reg$coefficients[1] + reg$coefficients[2]*estimate_x
+  
+  message(paste("(1): The expected number of bikes rented by registesterd customers is: ", yvalues))
+  
+}
+
+ols3polynomialestimate(atemp, registered, 42, "OLS with a 3nd polynomial regressor: atemp vs registered", "atemp", "registered")
+ols2polynomialestimate(atemp, registered, 42, "OLS with a 2nd polynomial regressor: atemp vs registered", "atemp", "registered")
+olsestimate(atemp, registered, 42, "OLS with a linear regressor: atemp vs registered", "atemp", "registered")
+
+##############################
+## Question 6
+reggression_q6 = lm(registered~dta_bikerentals2011$season + dta_bikerentals2011$holiday + dta_bikerentals2011$weekday + dta_bikerentals2011$weathersit + dta_bikerentals2011$atemp + dta_bikerentals2011$hum + dta_bikerentals2011$windspeed)
+summary(reggression_q6)
+
+#############################
+## Question 7
+dta_bikerentals2011$dteday = strptime(as.character(dta_bikerentals2011$dteday), "%d/%m/%Y")
+format(dta_bikerentals2011$dteday, "%Y-%m-%d")
+
+br2012 <- read.csv("C:/Users/bramg/Documents/bike_rentals_2012.csv", header = TRUE)
+br2012$dteday = strptime(as.character(br2012$dteday), "%d/%m/%Y")
+format(br2012$dteday, "%Y-%m-%d")
+
+br2011_dec = dta_bikerentals2011[dta_bikerentals2011$dteday>='2011-12-01',]
+br2012_dec = br2012[br2012$dteday<'2012-12-01',]
+
+##### Using the December 2011 data:
+### Regression calculation:
+br2011_dec.lm = lm(formula = registered ~ season + holiday + weekday+ weathersit + atemp + hum + windspeed, data= br2011_dec)
+summary(br2011_dec.lm)$coefficients
+br2011_dec$registered.lm <- br2011_dec.lm$fitted.values
+plot(x = br2011_dec$registered, br2011_dec$registered.lm, xlab = "True Values: Registered", ylab = "Model Fitted Values: Registered",      main = "Regression fits of Registered values")
+abline(b = 1, a = 0, col=2, lw = 3)
+### Apply same values Model fitted values to december 2012: 
+br2012_dec$registered = br2011_dec.lm$fitted.values
+
+
+##### Using the December 2012 data:
+br2012_rest = br2012[br2012$dteday<'2012-12-01',]
+br2012_rest.lm = lm(formula = registered ~ season + holiday + weekday+ weathersit + atemp + hum + windspeed, data= br2012_rest)
+br2012_rest$registered.lm <- br2012_rest.lm$fitted.values
+plot(x = br2012_rest$registered, br2012_rest$registered.lm, xlab = "True Values: Registered", ylab = "Model Fitted Values: Registered",      main = "Regression fits of Registered values")
+abline(b = 1, a = 0, col=2, lw = 3)
+
+
+#############################
+## Question 8
+
+
